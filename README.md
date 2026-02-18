@@ -1,45 +1,177 @@
-Overview
-========
+# Weather ETL Pipeline using Apache Airflow and Astro
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+## 📌 Project Overview
 
-Project Contents
-================
+This project implements an end-to-end ETL (Extract, Transform, Load) pipeline using
+Apache Airflow with the Astronomer (Astro) framework.
 
-Your Astro project contains the following files and folders:
+The pipeline fetches real-time weather data from the Open-Meteo API for a given
+geographical location, processes the data, and stores it in a PostgreSQL database.
+It demonstrates practical data engineering skills such as workflow orchestration,
+API integration, data transformation, and database loading.
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+---
 
-Deploy Your Project Locally
-===========================
+## ⚙️ ETL Workflow
 
-Start Airflow on your local machine by running 'astro dev start'.
+The pipeline follows a standard ETL architecture:
 
-This command will spin up five Docker containers on your machine, each for a different Airflow component:
+### 1. Extract
+- Fetches current weather data from the Open-Meteo API
+- Uses Airflow HTTP connections for API access
 
-- Postgres: Airflow's Metadata Database
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- DAG Processor: The Airflow component responsible for parsing DAGs
-- API Server: The Airflow component responsible for serving the Airflow UI and API
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+### 2. Transform
+- Extracts relevant weather fields
+- Converts values into consistent data types
 
-When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
+### 3. Load
+- Creates a PostgreSQL table if it does not exist
+- Inserts transformed weather data
+- Supports both local PostgreSQL and Amazon RDS
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+---
 
-Deploy Your Project to Astronomer
-=================================
+## 📊 Data Collected
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+Each pipeline run stores the following fields:
 
-Contact
-=======
+- Latitude
+- Longitude
+- Temperature
+- Wind Speed
+- Wind Direction
+- Weather Code
+- Timestamp (auto-generated)
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+The data is stored in a table named `weather_data`.
+
+---
+
+## 🛠️ Tech Stack
+
+- Apache Airflow (TaskFlow API)
+- Astronomer (Astro CLI)
+- Docker
+- PostgreSQL (Local & Amazon RDS)
+- Python
+- Open-Meteo API
+
+---
+
+## 📁 Project Structure
+
+etl-weather-airflow/
+│
+├── dags/
+│ └── etlweather.py # Weather ETL DAG
+├── include/ # Additional resources
+├── plugins/ # Custom plugins (optional)
+├── requirements.txt # Python dependencies
+├── packages.txt # OS-level dependencies
+├── airflow_settings.yaml # Local Airflow connections & variables
+├── Dockerfile
+└── README.md
+
+
+---
+
+## 🚀 Running the Project Locally
+
+### Prerequisites
+
+- Docker Desktop
+- Astronomer CLI
+- Git
+
+---
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/VinVa02/etl-weather-airflow.git
+cd etl-weather-airflow
+2️⃣ Start Airflow
+astro dev start
+This command starts the following containers:
+
+PostgreSQL (Airflow metadata database)
+
+Scheduler
+
+DAG Processor
+
+API Server (Airflow UI)
+
+Triggerer
+
+The Airflow UI will be available at:
+
+http://localhost:8080
+3️⃣ Configure Airflow Connections
+Create the following connections in the Airflow UI.
+
+Open-Meteo API Connection
+Connection ID: open_meteo_api
+
+Connection Type: HTTP
+
+Host: https://api.open-meteo.com
+
+PostgreSQL Connection
+Connection ID: postgres_default
+
+Connection Type: Postgres
+
+Host: postgres (Docker) or RDS endpoint
+
+Port: 5432
+
+Database: postgres
+
+Username: postgres
+
+Password: postgres
+
+4️⃣ Run the Pipeline
+Open the Airflow UI
+
+Enable weather_etl_pipeline
+
+Click Trigger DAG
+
+The pipeline will execute:
+
+Extract → Transform → Load
+☁️ Cloud Deployment (Optional)
+The pipeline can be connected to Amazon RDS by updating the
+postgres_default Airflow connection with the RDS endpoint and credentials.
+This enables cloud-based storage and deployment.
+
+📅 Scheduling
+Current Mode: Manual trigger
+
+Supported: Daily scheduling using @daily
+
+To enable automatic execution, turn the DAG ON in the Airflow UI.
+
+🔍 Monitoring & Logging
+Task execution can be monitored using Grid and Graph views
+
+Logs are available for each task instance
+
+XCom is used for passing data between tasks
+
+📈 Future Enhancements
+Parameterize latitude and longitude using Airflow Variables
+
+Add data validation and quality checks
+
+Implement alerting for failures
+
+Build a visualization dashboard (Power BI / Streamlit)
+
+Add CI/CD for deployment
+
+👤 Author
+Vindhya Vaasini M
+GitHub: https://github.com/VinVa02
