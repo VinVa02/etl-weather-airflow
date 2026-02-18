@@ -58,23 +58,6 @@ The data is stored in a table named `weather_data`.
 
 ---
 
-## 📁 Project Structure
-
-etl-weather-airflow/
-│
-├── dags/
-│ └── etlweather.py # Weather ETL DAG
-├── include/ # Additional resources
-├── plugins/ # Custom plugins (optional)
-├── requirements.txt # Python dependencies
-├── packages.txt # OS-level dependencies
-├── airflow_settings.yaml # Local Airflow connections & variables
-├── Dockerfile
-└── README.md
-
-
----
-
 ## 🚀 Running the Project Locally
 
 ### Prerequisites
